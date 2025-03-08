@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Build;
 using UnityEngine;
 using static UnityEditor.VersionControl.Asset;
 public enum States
@@ -68,7 +69,7 @@ public class GameManager : MonoBehaviour
                 if (Matrix[i, j] == 0)
                 {
                     Matrix[i, j] = -1;
-                    int score = Minimax(Matrix, 5, false);
+                    int score = Minimax(Matrix, 5, false, int.MinValue, int.MaxValue);
                     Matrix[i, j] = 0;
 
                     if (score > bestScore)
@@ -86,7 +87,7 @@ public class GameManager : MonoBehaviour
         state = States.CanMove;
     }
 
-    private int Minimax(int[,] board, int depth, bool isMaximizing)
+    private int Minimax(int[,] board, int depth, bool isMaximizing, int alfa, int beta)
     {
         int result = Calculs.EvaluateWin(board);
 
@@ -104,9 +105,14 @@ public class GameManager : MonoBehaviour
                     if (board[i, j] == 0)
                     {
                         board[i, j] = -1;
-                        int score = Minimax(board, depth + 1, false);
+                        int score = Minimax(board, depth + 1, false, alfa, beta);
                         board[i, j] = 0;
                         bestScore = Mathf.Max(score, bestScore);
+
+                        alfa = Mathf.Max(alfa, bestScore);
+
+                        if (beta <= alfa)
+                            return bestScore;
                     }
                 }
             }
@@ -122,9 +128,14 @@ public class GameManager : MonoBehaviour
                     if (board[i, j] == 0)
                     {
                         board[i, j] = 1;
-                        int score = Minimax(board, depth + 1, true);
+                        int score = Minimax(board, depth + 1, true, alfa, beta);
                         board[i, j] = 0;
                         bestScore = Mathf.Min(score, bestScore);
+
+                        beta = Mathf.Min(beta, bestScore);
+
+                        if (beta <= alfa)
+                            return bestScore;
                     }
                 }
             }
